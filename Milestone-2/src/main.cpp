@@ -12,6 +12,7 @@
 
 static volatile sig_atomic_t g_running = 1;
 static nbt::AASession g_session;
+static nbt::AudioManager* g_audio = NULL;
 
 static void signalHandler(int sig) {
     printf("\n[Main] Received signal %d, shutting down nbt-aad...\n", sig);
@@ -63,9 +64,22 @@ static void onCodecConfig(const uint8_t* config_data, size_t config_len, void* u
     }
 }
 
+static void onAudioFrame(uint8_t channel, uint32_t frame_index, const uint8_t* pcm_data, size_t pcm_len, uint64_t pts, void* user_data) {
+    (void)frame_index;
+    (void)pts;
+    nbt::AudioManager* audio = reinterpret_cast<nbt::AudioManager*>(user_data);
+    if (audio) audio->onAaAudio(channel, pcm_data, pcm_len);
+}
+
+static void onAudioState(uint8_t channel, bool started, void* user_data) {
+    nbt::AudioManager* audio = reinterpret_cast<nbt::AudioManager*>(user_data);
+    if (audio) audio->onAaStreamState(channel, started);
+}
+
 static void onSessionEnded(void* user_data) {
     nbt::TcpServer* server = reinterpret_cast<nbt::TcpServer*>(user_data);
     printf("[Main] Android Auto session ended. Resuming auto-connector probing...\n");
+    if (g_audio) g_audio->onSessionEnded();
     if (server) {
         server->notifySessionEnded();
     }
@@ -82,7 +96,7 @@ int main(int argc, char* argv[]) {
     printf("  NBT-AAD: Native Wireless Android Auto Daemon      \n");
     printf("  Platform: BMW NBT Evo ID6 / Toyota GR Supra (J29) \n");
     printf("  OS: QNX Neutrino RTOS (ARMv7LE)                   \n");
-    printf("  Build: v1.3.29 (%s %s)                            \n", __DATE__, __TIME__);
+    printf("  Build: v1.4.3-open-watch (%s %s)                            \n", __DATE__, __TIME__);
     printf("====================================================\n");
     printf("[Main] REMINDER: Disable packet filter on hu-omap if blocked:\n");
     printf("       Run 'pfctl -d' to allow all incoming Wi-Fi traffic on uap0.\n");
@@ -91,7 +105,7 @@ int main(int argc, char* argv[]) {
     signal(SIGINT,  signalHandler);
     signal(SIGTERM, signalHandler);
 
-    // 1. Initialize Video Pipeline (libscreen.so surface: 1440x540 @ 60fps)
+    // 1. Initialize Video Pipeline (libscreen.so surface: 1280x480 @ 60fps)
     nbt::VideoManager video;
     if (!video.init(NBT_SCREEN_WIDTH_SUPRA_WIDESCREEN,
                     NBT_SCREEN_HEIGHT_SUPRA_WIDESCREEN,
@@ -129,6 +143,8 @@ int main(int argc, char* argv[]) {
     g_session.setDisconnectCallback(&onSessionEnded, &tcp_server);
     g_session.setVideoFrameCallback(&onVideoFrame, &video);
     g_session.setCodecConfigCallback(&onCodecConfig, &video);
+    g_session.setAudioFrameCallback(&onAudioFrame, &audio);
+    g_session.setAudioStateCallback(&onAudioState, &audio);
 
     if (!tcp_server.start()) {
         printf("[Main] Fatal: Failed to start TCP server on port 5277\n");

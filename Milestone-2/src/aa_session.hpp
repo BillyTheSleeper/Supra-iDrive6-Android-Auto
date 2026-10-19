@@ -13,6 +13,9 @@ namespace nbt {
 typedef void (*SessionEndedCallback)(void* user_data);
 typedef void (*VideoFrameCallback)(uint32_t frame_index, const uint8_t* nal_data, size_t nal_len, uint64_t pts, void* user_data);
 typedef void (*CodecConfigCallback)(const uint8_t* config_data, size_t config_len, void* user_data);
+typedef void (*AudioFrameCallback)(uint8_t channel, uint32_t frame_index, const uint8_t* pcm_data, size_t pcm_len, uint64_t pts, void* user_data);
+
+typedef void (*AudioStateCallback)(uint8_t channel, bool started, void* user_data);
 
 class AASession {
 public:
@@ -24,6 +27,8 @@ public:
     void setDisconnectCallback(SessionEndedCallback cb, void* user_data = NULL);
     void setVideoFrameCallback(VideoFrameCallback cb, void* user_data = NULL);
     void setCodecConfigCallback(CodecConfigCallback cb, void* user_data = NULL);
+    void setAudioFrameCallback(AudioFrameCallback cb, void* user_data = NULL);
+    void setAudioStateCallback(AudioStateCallback cb, void* user_data = NULL);
 
 private:
     static void* sessionThreadStub(void* arg);
@@ -51,9 +56,14 @@ private:
     void* video_user_data_;
     CodecConfigCallback config_cb_;
     void* config_user_data_;
+    AudioFrameCallback audio_cb_;
+    void* audio_user_data_;
+    AudioStateCallback audio_state_cb_;
+    void* audio_state_user_data_;
 
     std::map<uint8_t, std::vector<uint8_t> > reassembly_;
     uint32_t media_frames_;
+    uint32_t audio_observe_frames_;
     std::vector<uint8_t> sps_pps_cache_;
 };
 

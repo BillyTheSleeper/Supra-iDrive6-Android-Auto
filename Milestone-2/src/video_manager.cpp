@@ -140,7 +140,7 @@ bool VideoManager::init(uint32_t width, uint32_t height, uint32_t fps) {
     // 13. Activate Surface in GENIVI LayerManagerService (hide stock iDrive Surface 256, show Surface 1280)
     system("/opt/sys/bin/LayerManagerControl set surface 256 visibility 0 2>/dev/null");
     system("/opt/sys/bin/LayerManagerControl set layer 0x80000000 render order 0x500 2>/dev/null");
-    system("/opt/sys/bin/LayerManagerControl set surface 1280 source region 0 0 1440 540 2>/dev/null");
+    system("/opt/sys/bin/LayerManagerControl set surface 1280 source region 0 0 1280 480 2>/dev/null");
     system("/opt/sys/bin/LayerManagerControl set surface 1280 destination region 0 0 1280 480 2>/dev/null");
     system("/opt/sys/bin/LayerManagerControl set surface 1280 visibility 1 2>/dev/null");
     system("/opt/sys/bin/LayerManagerControl set surface 1280 opacity 1.0 2>/dev/null");
@@ -285,7 +285,7 @@ bool VideoManager::init(uint32_t width, uint32_t height, uint32_t fps) {
                     // libconn_carplay_video_mmr.so behavior.
                     char out_url[256];
                     snprintf(out_url, sizeof(out_url),
-                             "screen:/any?winid=%s&nodstviewport=0&dstx=0&dsty=0&dstw=1440&dsth=540&wingrp=%s",
+                             "screen:/any?winid=%s&nodstviewport=0&dstx=0&dsty=0&dstw=1280&dsth=480&wingrp=%s",
                              NBT_SCREEN_WINDOW_ID, grp_name);
                     printf("[VideoManager] MM-Renderer output URL: %s\n", out_url);
                     mmr_output_id_ = fn_out_attach(mmr_ctxt_, out_url, "video");
@@ -323,7 +323,7 @@ bool VideoManager::init(uint32_t width, uint32_t height, uint32_t fps) {
 
                     // Step 4: Attach Input to Hardware Video Push Engine ('H264' FourCC)
                     // Match the widescreen Android Auto SDP profile. 1280x480 preserves
-                    // the car display's 8:3 aspect ratio and scales cleanly to 1440x540.
+                    // the car display's 8:3 aspect ratio and maps 1:1 onto the 1280x480 panel.
                     char in_url[256];
                     snprintf(in_url, sizeof(in_url),
                              "mdevpush:/dev/name/local/mdev?fourcc=H264&queue_capacity=60&video.frame_rate=60&video.depth=16&video.width=1280&video.height=480");
@@ -468,7 +468,7 @@ void VideoManager::setVisible(bool visible) {
     char cmd[128];
     if (visible) {
         system("/opt/sys/bin/LayerManagerControl set layer 0x80000000 render order 0x500 2>/dev/null");
-        system("/opt/sys/bin/LayerManagerControl set surface 1280 source region 0 0 1440 540 2>/dev/null");
+        system("/opt/sys/bin/LayerManagerControl set surface 1280 source region 0 0 1280 480 2>/dev/null");
         system("/opt/sys/bin/LayerManagerControl set surface 1280 destination region 0 0 1280 480 2>/dev/null");
     } else {
         system("/opt/sys/bin/LayerManagerControl set layer 0x80000000 render order 0x100 2>/dev/null");
@@ -779,12 +779,12 @@ void VideoManager::onVideoFrameReceived(uint32_t frame_index, size_t byte_len) {
 
     int bar_w = 400;
     int bar_h = 40;
-    int start_x = (1440 - bar_w) / 2;
-    int start_y = (540 - bar_h) / 2;
+    int start_x = (1280 - bar_w) / 2;
+    int start_y = (480 - bar_h) / 2;
 
     for (int y = start_y; y < start_y + bar_h; ++y) {
         for (int x = start_x; x < start_x + bar_w; ++x) {
-            pixels[y * 1440 + x] = pulse_color;
+            pixels[y * 1280 + x] = pulse_color;
         }
     }
 

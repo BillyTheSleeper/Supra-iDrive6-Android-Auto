@@ -17,6 +17,8 @@ extern "C" {
 /* Endpoint Paths */
 #define A2I_ENDPOINT_MEDIA_MAIN      "/input_stereo_AirPlayMain" /* 44.1kHz Stereo Music */
 #define A2I_ENDPOINT_MEDIA_FALLBACK  "/input_stereo_4"           /* Fallback stereo channel */
+#define A2I_ENDPOINT_ALERT           "/input_stereo_4"           /* Factory CarPlay maps audioType "alert" here */
+#define A2I_ENDPOINT_MEDIA_CLIENT    "input_stereo_0"            /* MainAudio client-write probe */
 #define A2I_ENDPOINT_NAV_ALT         "/input_stereo_AirPlayAlt"  /* 44.1kHz Stereo Navigation Prompts */
 #define A2I_ENDPOINT_SPEECH_DL       "/input_mono_AirPlayDL"     /* 16/24kHz Mono Downlink Voice Out */
 #define A2I_ENDPOINT_MIC_UL          "/output_mono_AirPlayUL"    /* 16/24kHz Mono Echo-Cancelled Mic In */
@@ -35,6 +37,7 @@ extern "C" {
 #define A2I_SAMPLE_RATE_24K          24000
 #define A2I_SAMPLE_RATE_44K          44100
 #define A2I_SAMPLE_RATE_48K          48000
+#define A2I_SAMPLE_RATE_48K_CLIENT   0x90000900u /* A2I BYCLIENT encoded 48kHz */
 
 /* Channels */
 #define A2I_CHANNELS_MONO            1
@@ -43,6 +46,17 @@ extern "C" {
 /* Buffer Size Defaults */
 #define A2I_BUFFER_SIZE_STEREO       0x400 /* 1024 bytes */
 #define A2I_BUFFER_SIZE_MONO         0x200 /* 512 bytes */
+
+/* Return codes observed in the factory CarPlay A2I wrapper (libconn_carplay_audio_a2i.so) */
+#define A2I_OK                       0
+#define A2I_ERR_NO_BUFFER            0x14  /* GetBuffer: no free buffer right now */
+
+/* cfg.field_34 values. The project has always opened with the legacy values; the
+ * factory CarPlay code passes 0x0ABABABA for every stream. Open tries both. */
+#define A2I_COOKIE_LEGACY_PLAYBACK   0x05555555u
+#define A2I_COOKIE_LEGACY_CAPTURE    0x00000000u
+#define A2I_COOKIE_FACTORY           0x0ABABABAu
+#define A2I_COOKIE_NONE              0xFFFFFFFFu
 
 typedef void* a2i_client_handle_t;
 

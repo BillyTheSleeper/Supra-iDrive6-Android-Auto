@@ -15,6 +15,9 @@ LDFLAGS  = -L./lib -la2i_client -lsocket -lssl -lcrypto -lscreen -lang-c++ -Wl,-
 
 SRCS = src/main.cpp \
        src/audio_manager.cpp \
+       src/a2i_stream.cpp \
+       src/audio_route.cpp \
+       src/pcm_utils.cpp \
        src/video_manager.cpp \
        src/input_manager.cpp \
        src/tcp_server.cpp \

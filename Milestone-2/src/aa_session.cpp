@@ -20,7 +20,12 @@ AASession::AASession()
       video_user_data_(NULL),
       config_cb_(NULL),
       config_user_data_(NULL),
-      media_frames_(0) {
+      audio_cb_(NULL),
+      audio_user_data_(NULL),
+      audio_state_cb_(NULL),
+      audio_state_user_data_(NULL),
+      media_frames_(0),
+      audio_observe_frames_(0) {
 }
 
 AASession::~AASession() {
@@ -42,6 +47,16 @@ void AASession::setCodecConfigCallback(CodecConfigCallback cb, void* user_data) 
     config_user_data_ = user_data;
 }
 
+void AASession::setAudioStateCallback(AudioStateCallback cb, void* user_data) {
+    audio_state_cb_ = cb;
+    audio_state_user_data_ = user_data;
+}
+
+void AASession::setAudioFrameCallback(AudioFrameCallback cb, void* user_data) {
+    audio_cb_ = cb;
+    audio_user_data_ = user_data;
+}
+
 bool AASession::start(int client_fd) {
     if (is_running_) stop();
 
@@ -50,6 +65,7 @@ bool AASession::start(int client_fd) {
     reassembly_.clear();
     sps_pps_cache_.clear();
     media_frames_ = 0;
+    audio_observe_frames_ = 0;
 
     if (pthread_create(&thread_, NULL, &AASession::sessionThreadStub, this) != 0) {
         perror("[AASession] Failed to spawn session thread");
@@ -343,6 +359,14 @@ void AASession::sessionLoop() {
                 }
             } else if (msg_id == 0x8001) { // AV START_INDICATION
                 printf("[AASession] >>> Received AV START_INDICATION on Channel %u! Projection ACTIVE!\n", channel);
+                if ((channel == 8 || channel == 9) && audio_state_cb_) {
+                    audio_state_cb_(channel, true, audio_state_user_data_);
+                }
+            } else if (msg_id == 0x8002) { // AV STOP_INDICATION
+                printf("[AASession] >>> Received AV STOP_INDICATION on Channel %u.\n", channel);
+                if ((channel == 8 || channel == 9) && audio_state_cb_) {
+                    audio_state_cb_(channel, false, audio_state_user_data_);
+                }
             } else if (msg_id == 0x8008) { // VIDEO_FOCUS_INDICATION
                 printf("[AASession] >>> Received VideoFocusIndication on Channel %u.\n", channel);
             } else if (msg_id == 0x0000 || msg_id == 0x0001) { // AV Media Data (Live H.264 video frames)
@@ -351,7 +375,29 @@ void AASession::sessionLoop() {
                     printf("[AASession] >>> Streaming Media Frame %u on Channel %u (%u bytes)\n",
                            media_frames_, channel, static_cast<unsigned int>(frame_data.size()));
                 }
-                if (channel == 6) { // Channel 6 is EXCLUSIVELY the Main Dashboard Screen (display_id=0, display_type=MAIN)
+                if ((channel == 9 || channel == 8) && msg_id == 0x0000 && frame_data.size() > 10) {
+                    // Observe AA PCM and optionally pass a bounded probe chunk to A2I.
+                    ++audio_observe_frames_;
+                    size_t pcm_len = frame_data.size() - 10;
+                    uint64_t pts = (static_cast<uint64_t>(frame_data[2]) << 56) |
+                                  (static_cast<uint64_t>(frame_data[3]) << 48) |
+                                  (static_cast<uint64_t>(frame_data[4]) << 40) |
+                                  (static_cast<uint64_t>(frame_data[5]) << 32) |
+                                  (static_cast<uint64_t>(frame_data[6]) << 24) |
+                                  (static_cast<uint64_t>(frame_data[7]) << 16) |
+                                  (static_cast<uint64_t>(frame_data[8]) << 8)  |
+                                   static_cast<uint64_t>(frame_data[9]);
+                    if (audio_observe_frames_ <= 5 || (audio_observe_frames_ % 50) == 0) {
+                        printf("[AASession] >>> Observed PCM audio frame #%u on Channel %u (%u bytes, pts=%llu; direct A2I probe active)\n",
+                               audio_observe_frames_, channel,
+                               static_cast<unsigned int>(pcm_len),
+                               static_cast<unsigned long long>(pts));
+                    }
+                    if (audio_cb_) {
+                        const uint8_t* pcm_ptr = &frame_data[10];
+                        audio_cb_(channel, audio_observe_frames_, pcm_ptr, pcm_len, pts, audio_user_data_);
+                    }
+                } else if (channel == 6) { // Channel 6 is EXCLUSIVELY the Main Dashboard Screen (display_id=0, display_type=MAIN)
                     // Use protocol boundaries, never scan the message ID or timestamp:
                     // 0x0001 = 2-byte ID + codec data; 0x0000 = ID + 8-byte PTS + video.
                     // Timestamps can contain 00 00 01 and look like Annex-B start codes.
