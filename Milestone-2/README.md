@@ -36,23 +36,3 @@ It bypasses Apple CarPlay hardware dongles and phone-side hacks by acting as a n
 3. Configure target architecture as `armv7le` (Release).
 4. Point external include and library search paths to the sysroot extracted from `D:\re\BACKUP-DO-NOT-TOUCH\net\hu-omap\`.
 5. Build target `nbt-aad`.
-
----
-
-## Deployment to Vehicle
-1. Copy `nbt-aad` to a FAT32 USB drive.
-2. Plug into the Supra's armrest USB port and SSH into the head unit:
-   ```sh
-   # Mount filesystem read-write
-   mount -uw /fs/sda0
-
-   # Copy daemon to executable storage
-   cp /fs/usb0/nbt-aad /opt/car/bin/nbt-aad
-   chmod +x /opt/car/bin/nbt-aad
-
-   # Remount read-only
-   mount -ur /fs/sda0
-
-   # Run daemon in background
-   /opt/car/bin/nbt-aad &
-   ```
