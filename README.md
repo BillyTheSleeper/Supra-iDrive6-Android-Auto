@@ -26,7 +26,9 @@ The code needs to be compatible with Armv7LE. I built it with [QNX Momentics](ht
 ### Instructions
 The code comes pre-compiled in the https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/releases page. I cannot guarantee cross compatibility. I built this entirely using AI, so you may need to have it help troubleshoot for you.
 
-First, you'll need to enable SSH access on your head unit. I'm working on a free way to do that. I have information here if you [want to pay and use FeatureInstaller](https://github.com/Sq00ky/Supra-Headunit-RE/tree/main). I do not profit off of this in any way. Once enabled:
+~~First, you'll need to enable SSH access on your head unit. I'm working on a free way to do that. I have information here if you [want to pay and use FeatureInstaller](https://github.com/Sq00ky/Supra-Headunit-RE/tree/main). I do not profit off of this in any way. Once enabled:~~
+
+If you're a member of the supramkv forums, @duckytheduck, from [TurboCode](https://turbocode.shop/) has graciously offered to unlock SSH for free. I also have access to their SSH unlocker, though I have **not** tested it yet. I would recommend working with them first. I didn't develop the technique, and I'm not sure of the intimate details on how it gets unlocked. Best to go through them first.
 
 - SSH in as root, the password is ts&SK412
 - Drop down into hu-omap
