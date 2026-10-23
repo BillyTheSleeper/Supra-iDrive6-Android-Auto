@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Required Notice: Copyright (c) 2026 nanaisu - NBT-AAD (https://github.com/Sq00ky/Supra-iDrive6-Android-Auto)
 # Makefile for nbt-aad (QNX Neutrino ARMv7LE)
 # Target: Cortex-A15 Little Endian (BMW NBT Evo)
 

@@ -102,3 +102,13 @@ Squashed (old) picture mode: `NBT_VID_INSETS=off NBT_VID_SRC_H=480 NBT_VID_DST_H
 `src/`: `main`, `aa_session`, `aa_cryptor`, `tcp_server`, `video_manager`, `wireless_setup`, `dsi_client`, `bluetooth_manager`,
 `touch_probe` (+ `touch_types.hpp`), `sdr_builder`, `crash_handler`, `audio_manager`, `input_manager`.
 `include/dhu_sdp.h` is the canned service-discovery protobuf.
+
+## License
+
+NBT-AAD is licensed under the **PolyForm Noncommercial License 1.0.0** (`SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0`).
+The full text is embedded in `src/main.cpp` / `src/license_text.hpp` and printed by `./nbt-aad --license`.
+
+Required Notice: Copyright (c) 2026 nanaisu - NBT-AAD (https://github.com/Sq00ky/Supra-iDrive6-Android-Auto)
+
+NBT-AAD is free of charge. Selling it, or bundling it with anything sold, is not permitted.
+If you paid for it, you were scammed: official releases are only published at https://github.com/Sq00ky/Supra-iDrive6-Android-Auto.

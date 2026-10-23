@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+# Required Notice: Copyright (c) 2026 nanaisu - NBT-AAD (https://github.com/Sq00ky/Supra-iDrive6-Android-Auto)
 # QNX Momentics common.mk for nbt-aad
 # Target: armv7le (Cortex-A15, BMW NBT Evo)
 

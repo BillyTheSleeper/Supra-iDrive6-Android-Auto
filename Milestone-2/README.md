@@ -36,3 +36,13 @@ It bypasses Apple CarPlay hardware dongles and phone-side hacks by acting as a n
 3. Configure target architecture as `armv7le` (Release).
 4. Point external include and library search paths to the sysroot extracted from `D:\re\BACKUP-DO-NOT-TOUCH\net\hu-omap\`.
 5. Build target `nbt-aad`.
+
+## License
+
+NBT-AAD is licensed under the **PolyForm Noncommercial License 1.0.0** (`SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0`).
+The full text is embedded in `src/main.cpp` / `src/license_text.hpp` and printed by `./nbt-aad --license`.
+
+Required Notice: Copyright (c) 2026 nanaisu - NBT-AAD (https://github.com/Sq00ky/Supra-iDrive6-Android-Auto)
+
+NBT-AAD is free of charge. Selling it, or bundling it with anything sold, is not permitted.
+If you paid for it, you were scammed: official releases are only published at https://github.com/Sq00ky/Supra-iDrive6-Android-Auto.
