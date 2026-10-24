@@ -10,7 +10,9 @@ Required Notice: Copyright (c) 2026 nanaisu - NBT-AAD (https://github.com/Sq00ky
 NBT-AAD is free of charge. Selling it, or bundling it with anything sold, is not permitted.
 If you paid for it, you were scammed: official releases are only published at https://github.com/Sq00ky/Supra-iDrive6-Android-Auto
 Please report any sellers in here: https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/issues
+
 ---
+
 The only authorized bundlers is TurboCode for directly supporting the development of this project by offering free SSH unlocks, and providing guidance for native integration.
 
 ## Disclaimer
