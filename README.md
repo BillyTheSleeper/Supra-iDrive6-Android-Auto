@@ -28,4 +28,4 @@ The only authorized bundlers is TurboCode for directly supporting the developmen
 The code needs to be compatible with Armv7LE. I built it with [QNX Momentics](https://archive.org/details/qnxsdp-65.7z) because that's probably what the developers iDrive6 did. Be warned, this is from archive.org. Run it in a VM. I cannot guarntee the safety/security of the software. It is as simple as creating a new project in Momentics, adding all the files to the project folder, right clicking on your project folder, selecting "clean", and then "build". 
 
 ### Instructions
-Installation instructions can be found in the [Installation.md file](https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/blob/main/install.md)
+Installation instructions can be found in the [install.md file](https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/blob/main/install.md)
