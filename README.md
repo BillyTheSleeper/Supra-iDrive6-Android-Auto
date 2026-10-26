@@ -1,6 +1,10 @@
 # Overview
 I'm a believer of humans writing things, but this is well beyond my skillset, so I (me, Ronnie) am writing this (the words on the page you're reading). I'm not a C-dev, but I do know these things can be done... So... This repository contains code for the J29 Toyota Supra to run Android Auto natively on the NBT Evo head unit. Yeah, talk about a big one. I'll preface it with this: Big screw you to all the companies who have profited for **years** on MMI units. You could have drove innovation, yet you chose to implement a "just good enough" solution to get people to bite. Okay, now that that's out of the way...
 
+# A Note on Bench Setups & Retrofits
+I cannot provide support for bench setups. I cannot provide support for retrofits. I cannot guarantee hardware compatibility. I'm not familiar enough with 4 -> 6, or 5 -> 6, and cannot verify the hardware will work. I need to test on things I have easy access to, and I just don't have that hardware.
+I went through maybe 60-90 rounds of testing on my real car, and I cannot do that with you remotely.
+
 ## License
 NBT-AAD is licensed under the **PolyForm Noncommercial License 1.0.0** (`SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0`).
 The full text is embedded in `src/main.cpp` / `src/license_text.hpp` and printed by `./nbt-aad --license`.
