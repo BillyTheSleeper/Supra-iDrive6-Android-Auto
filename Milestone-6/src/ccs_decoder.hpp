@@ -21,11 +21,13 @@
 //
 // Older "CCS" controller protocol (same FBlock 0xE5, instance 0x01 for the front controller), decoded by HmiMain3D's
 // CHmiCCSController next to CDevCCS35up (both always created; whichever the controller speaks wins). Layout from the
-// firmware (HmiMain3D FUN_02135a40 / FUN_02135c80 / FUN_00242cf4, scratch zbere/e5_variant.md), not yet seen in a capture:
-//   fkt 0xC10 RotaryEncoder, 7 bytes (inst 1): [0] sender 0x01 [1] receiver 0x1D [2] config handle (0xFF = controller
-//       not configured yet: ignore) [3..4] BE16 detent position (higher = clockwise) [5] cluster 0x1E [6] overflow
-//       (non-zero: position re-based). Instance 2 (rear) has one more byte before the cluster.
-//   fkt 0xC20 PushButton, 7 bytes, one key event per message: [0] sender [1] receiver [2] handle (0xFF ignore)
+// firmware (HmiMain3D FUN_02135a40 / FUN_02135c80 / FUN_00242cf4, scratch zbere/e5_variant.md); C10/C20 seen in a
+// G30 NBT EVO ID6 capture 2026-10-26 (v1.8.2 knob.log, issue #3):
+//   fkt 0xC10 RotaryEncoder, 7 bytes (inst 1): [0] sender 0x01 [1] receiver 0x1D [2] message counter, +1 per message
+//       like C46 [0] (capture: 21 22 23 on consecutive detents; 0xFF = controller not configured yet: ignore)
+//       [3..4] BE16 detent position (higher = clockwise) [5] cluster 0x1E [6] overflow (non-zero: position re-based).
+//       Instance 2 (rear) has one more byte before the cluster.
+//   fkt 0xC20 PushButton, 7 bytes, one key event per message: [0] sender [1] receiver [2] message counter (0xFF ignore)
 //       [3] status 0 released / 1 pressed / 2 held / 3 no change  [4] tilt 1 up 2 right 4 down 8 left (0 = release)
 //       [5] cluster 0x00 hard keys / 0x1D tilt / 0x1E knob (sensor 1 = centre push)  [6] sensor: hard-key bit n = the
 //       35up slot n above (same HMI key table), so NBT_KEY_<slot> overrides apply to both protocols.
@@ -58,7 +60,7 @@ enum { CCS_SLOTS = 7 };
 class CcsDecoder {
 public:
     CcsDecoder() : inst_(0x03), ccsInst_(0x01), invert_(false), lastPos_(-1), tiltKey_(0), pushDown_(false),
-                   ccsLastPos_(-1), ccsHandle_(-1), ccsTilt_(0), ccsPush_(false) {
+                   ccsLastPos_(-1), ccsTilt_(0), ccsPush_(false) {
         memset(slot_, 0, sizeof(slot_));
         static const char* const names[CCS_SLOTS] = { "MENU", "BACK", "OPTIONS", "COM", "MEDIA", "NAV", "MAP" };
         static const uint32_t keys[CCS_SLOTS] = { AAK_HOME, AAK_BACK, 0, AAK_CALL, AAK_MEDIA, AAK_NAVIGATION, AAK_NAVIGATION };
@@ -150,11 +152,12 @@ private:
         if (fkt == 0xC10) {
             size_t need = (inst == 1) ? 7 : 8;
             if (n < need) return 0;
-            int handle = d[2];
             int pos = (d[3] << 8) | d[4];
             uint8_t clus = d[need - 2], ovf = d[need - 1];
-            if (handle == 0xFF || clus != 0x1E) { ccsLastPos_ = -1; return 0; }
-            if (handle != ccsHandle_ || ovf != 0 || ccsLastPos_ < 0) { ccsHandle_ = handle; ccsLastPos_ = pos; return 0; }
+            if (d[2] == 0xFF || clus != 0x1E) { ccsLastPos_ = -1; return 0; }
+            // [2] changes on every message, so only the overflow flag re-bases (re-basing on a [2] change dropped
+            // every detent in v1.8.2).
+            if (ovf != 0 || ccsLastPos_ < 0) { ccsLastPos_ = pos; return 0; }
             int delta = (int)(int16_t)(uint16_t)(pos - ccsLastPos_);
             ccsLastPos_ = pos;
             if (invert_) delta = -delta;
@@ -200,7 +203,6 @@ private:
     uint32_t slotKey_[CCS_SLOTS];
     const char* slotName_[CCS_SLOTS];
     int ccsLastPos_;
-    int ccsHandle_;
     uint32_t ccsTilt_;
     bool ccsPush_;
 };
