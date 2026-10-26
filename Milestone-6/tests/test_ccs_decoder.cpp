@@ -76,8 +76,12 @@ int main(int argc, char** argv) {
         assert(c.feed(0xE5, 1, 0xC10, 0xC, r2, 7, ev, 8) == 1 && ev[0].kind == 2 && ev[0].delta == 2);
         uint8_t r3[7] = { 0x01, 0x1d, 0x05, 0x7f, 0xfe, 0x1e, 0 };          // -3
         assert(c.feed(0xE5, 1, 0xC10, 0xC, r3, 7, ev, 8) == 1 && ev[0].delta == -3);
-        uint8_t r4[7] = { 0x01, 0x1d, 0x06, 0x7f, 0xff, 0x1e, 0 };          // new handle: re-base, no jump
-        assert(c.feed(0xE5, 1, 0xC10, 0xC, r4, 7, ev, 8) == 0);
+        uint8_t r4[7] = { 0x01, 0x1d, 0x06, 0x7f, 0xff, 0x1e, 0 };          // [2] is a message counter: no re-base, +1
+        assert(c.feed(0xE5, 1, 0xC10, 0xC, r4, 7, ev, 8) == 1 && ev[0].delta == 1);
+        uint8_t r5[7] = { 0x01, 0x1d, 0x07, 0x80, 0x03, 0x1e, 1 };          // overflow: re-base, no jump
+        assert(c.feed(0xE5, 1, 0xC10, 0xC, r5, 7, ev, 8) == 0);
+        uint8_t r6[7] = { 0x01, 0x1d, 0x08, 0x80, 0x04, 0x1e, 0 };          // +1 from the re-based 0x8003
+        assert(c.feed(0xE5, 1, 0xC10, 0xC, r6, 7, ev, 8) == 1 && ev[0].delta == 1);
         assert(c.feed(0xE5, 3, 0xC10, 0xC, r2, 7, ev, 8) == 0);              // wrong instance ignored
         uint8_t push[7] = { 0x01, 0x1d, 0x05, 1, 0, 0x1e, 1 };
         assert(c.feed(0xE5, 1, 0xC20, 0xC, push, 7, ev, 8) == 1 && ev[0].keycode == nbt::AAK_DPAD_CENTER && ev[0].down == 1);
@@ -99,6 +103,20 @@ int main(int argc, char** argv) {
         uint8_t media[7] = { 0x01, 0x1d, 0x05, 1, 0, 0x00, 0x10 };
         assert(c.feed(0xE5, 1, 0xC20, 0xC, media, 7, ev, 8) == 1 && ev[0].keycode == 85);
         printf("test_ccs_decoder CCS (C10/C20) OK\n");
+    }
+    {   // G30 NBT EVO ID6 capture 2026-10-26 (v1.8.2 knob.log, issue #3): every C10 arrives twice, [2] counts up.
+        nbt::CcsDecoder g;
+        nbt::CcsEvent ev[8];
+        const uint8_t m[3][7] = { { 0x01, 0x1d, 0x21, 0x80, 0x00, 0x1e, 0 }, { 0x01, 0x1d, 0x22, 0x80, 0x01, 0x1e, 0 },
+                                  { 0x01, 0x1d, 0x23, 0x80, 0x02, 0x1e, 0 } };
+        int cw = 0, events = 0;
+        for (int i = 0; i < 3; ++i)
+            for (int copy = 0; copy < 2; ++copy) {
+                int n = g.feed(0xE5, 1, 0xC10, 0xC, m[i], 7, ev, 8);
+                for (int j = 0; j < n; ++j) { assert(ev[j].kind == 2); cw += ev[j].delta; ++events; }
+            }
+        assert(cw == 2 && events == 2);                                       // baseline, then two clockwise detents
+        printf("test_ccs_decoder CCS G30 capture OK\n");
     }
     printf("test_ccs_decoder OK\n");
     return 0;

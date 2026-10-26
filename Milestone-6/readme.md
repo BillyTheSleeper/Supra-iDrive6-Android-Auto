@@ -465,8 +465,8 @@ MOST FBlock 0xE5 instance 0x03, op Status, addressed to the HMI (dst 0x2023).
 |---|---|---|
 | 0xC46 | 8 | `[0]` counter, `[1..2]` BE16 detent position (+1 clockwise), `[3]` centre push (1 down / 0 up), `[4]` tilt as a 12-step clock (1 up, 4 right, 7 down, 10 left, 0 centred), `[7]` 0xff |
 | 0xC47 / 0xC4F | 7 / 8 | One byte per hard key (0 released, 1 pressed, 2 held). Slots: 0 MENU, 1 BACK, 2 OPTIONS, 3 COM, 4 MEDIA, 5 NAV, 6 MAP |
-| 0xC10 (old CCS) | | BE16 knob position |
-| 0xC20 (old CCS) | | One key event per message; tilt 1/2/4/8 |
+| 0xC10 (old CCS) | 7 | `[2]` message counter (+1 per message), `[3..4]` BE16 knob position, `[6]` overflow |
+| 0xC20 (old CCS) | 7 | One key event per message; `[2]` message counter; tilt 1/2/4/8 |
 
 ## The iDrive app (rhmiapp/)
 
