@@ -24,7 +24,8 @@
 // firmware (HmiMain3D FUN_02135a40 / FUN_02135c80 / FUN_00242cf4, scratch zbere/e5_variant.md); C10/C20 seen in a
 // G30 NBT EVO ID6 capture 2026-10-26 (v1.8.2 knob.log, issue #3):
 //   fkt 0xC10 RotaryEncoder, 7 bytes (inst 1): [0] sender 0x01 [1] receiver 0x1D [2] message counter, +1 per message
-//       like C46 [0] (capture: 21 22 23 on consecutive detents; 0xFF = controller not configured yet: ignore)
+//       like C46 [0] (capture: 21 22 23 on consecutive detents). 0xFF = controller not configured (firmware): the
+//       message is dropped and the next one re-bases; the capture never reaches 0xFF.
 //       [3..4] BE16 detent position (higher = clockwise) [5] cluster 0x1E [6] overflow (non-zero: position re-based).
 //       Instance 2 (rear) has one more byte before the cluster.
 //   fkt 0xC20 PushButton, 7 bytes, one key event per message: [0] sender [1] receiver [2] message counter (0xFF ignore)
@@ -156,7 +157,7 @@ private:
             uint8_t clus = d[need - 2], ovf = d[need - 1];
             if (d[2] == 0xFF || clus != 0x1E) { ccsLastPos_ = -1; return 0; }
             // [2] changes on every message, so only the overflow flag re-bases (re-basing on a [2] change dropped
-            // every detent in v1.8.2).
+            // every detent in v1.8.2 and v1.8.3).
             if (ovf != 0 || ccsLastPos_ < 0) { ccsLastPos_ = pos; return 0; }
             int delta = (int)(int16_t)(uint16_t)(pos - ccsLastPos_);
             ccsLastPos_ = pos;

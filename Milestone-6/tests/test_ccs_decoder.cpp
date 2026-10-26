@@ -80,6 +80,8 @@ int main(int argc, char** argv) {
         assert(c.feed(0xE5, 1, 0xC10, 0xC, r4, 7, ev, 8) == 1 && ev[0].delta == 1);
         uint8_t r5[7] = { 0x01, 0x1d, 0x07, 0x80, 0x03, 0x1e, 1 };          // overflow: re-base, no jump
         assert(c.feed(0xE5, 1, 0xC10, 0xC, r5, 7, ev, 8) == 0);
+        uint8_t r6[7] = { 0x01, 0x1d, 0x08, 0x80, 0x04, 0x1e, 0 };          // +1 from the re-based 0x8003
+        assert(c.feed(0xE5, 1, 0xC10, 0xC, r6, 7, ev, 8) == 1 && ev[0].delta == 1);
         assert(c.feed(0xE5, 3, 0xC10, 0xC, r2, 7, ev, 8) == 0);              // wrong instance ignored
         uint8_t push[7] = { 0x01, 0x1d, 0x05, 1, 0, 0x1e, 1 };
         assert(c.feed(0xE5, 1, 0xC20, 0xC, push, 7, ev, 8) == 1 && ev[0].keycode == nbt::AAK_DPAD_CENTER && ev[0].down == 1);

@@ -89,7 +89,7 @@ public:
             lastC46_[1] = tilt;
             haveC46_ = true;
         } else if (fkt == 0xC10 && n >= 7) {
-            // Older CCS protocol knob: [2] handle (0xFF = not configured) [3..4] BE16 position.
+            // Older CCS protocol knob: [2] message counter (0xFF = not configured) [3..4] BE16 position.
             if (d[2] == 0xFF) return;
             int pos = (d[3] << 8) | d[4];
             int last = ccsPos_[inst];
