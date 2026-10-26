@@ -1,5 +1,5 @@
 # Installation Guide
-
+**Note: Releases are in the release folder. The milestones are source code, designed to be built, and then deployed. For releases, see: https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/releases**
 ## Overview
 Computers are hard. I'm going to try to make this as easy as possible for folks to understand, hopefully this will help you understand what's happening behind the scenes a little bit more. The whole process takes roughly 30-45 minutes. The more experienced you are, the faster this will probably go.
 
