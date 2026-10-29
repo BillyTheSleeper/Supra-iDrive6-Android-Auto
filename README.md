@@ -27,6 +27,7 @@ The only authorized bundlers is TurboCode for directly supporting the developmen
 - SSH Access to your NBT Evo head unit.
 - An Ethernet -> ODB2 cable
 - A computer w/ an SSH Client
+- at least 1GB Flash Drive
 
 ## Instructions
 Installation instructions can be found in the [install.md file](https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/blob/main/install.md)
