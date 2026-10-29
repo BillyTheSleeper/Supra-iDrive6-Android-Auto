@@ -23,10 +23,10 @@ The only authorized bundlers is TurboCode for directly supporting the developmen
 **I am not responsible for anything you do on your device, if you execute a command, or change files, do so with care - if you break something, only Toyota/BMW can reflash and virginize your head unit. The code is shipped as-is. You may fork the repo, clone it, change whatever you like. I cannot ensure compatibility.**
 
 ## Requirements
+- Temporarily Apple CarPlay (Looking into WiFi Direct compatibility)
 - SSH Access to your NBT Evo head unit.
 - An Ethernet -> ODB2 cable
 - A computer w/ an SSH Client
-- A flash drive formatted in FAT32 or exFAT
 
 ## Instructions
 Installation instructions can be found in the [install.md file](https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/blob/main/install.md)
