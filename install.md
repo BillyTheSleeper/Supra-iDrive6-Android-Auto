@@ -28,11 +28,19 @@ Two pieces of software need to be downloaded and installed on your computer
 1. [ZeroTier](https://www.zerotier.com/) - This lets me remotely access a private network with just me and your computer.
 2. [BMW TurboCode Proxy](https://turbocode.shop/bmw-remote-enet-tool/) - This lets me specifically access your head unit, via an enet cable
 
-I will give you a private ZeroTier network to connect to, this will be sent via Direct Message on whatever platform we're talking on! I'll have to approve your access afterwards.
-During this time, you should get Turbocode Proxy running on your device. Click "Discover ZGW" and you should find your cars VIN number pop up, and say something along the lines of "port forward to 0.0.0.0:6969 running". 
-### What I Need To Do For You
-This is how I will connect to your car and enable SSH.
+I will give you a private ZeroTier network to connect to, this will be sent via Direct Message on whatever platform we're talking on! I'll have to approve your access afterwards. This is how I will connect to your car and enable SSH.
 
+### Joining Zero Tier Network
+Zero Tier has a very small UI, it's hidden in the bottom corner of your task bar, right click it, and select Join Network:
+<img width="376" height="270" alt="image" src="https://github.com/user-attachments/assets/d95154d4-4e4b-42f8-af79-a9a1036babeb" />
+
+### TurboCode Proxy
+It's super easy, press "Search ZGW", you should see your VIN number pop up as long as your ODB -> ENet cable is successfully connected.
+Once you find it, press **Start**!
+<img width="752" height="519" alt="image" src="https://github.com/user-attachments/assets/9e0ffd59-3a7f-48aa-b363-4a199e75bde0" />
+Make sure you see: Forwarding 0.0.0.0:6969 → 169.254.199.119:22  
+
+### What I Need To Do For You
 From there, we will change the head unit from Read Only to Read Write temporarily to install the Android Auto Daemon and the Plugin to enable access in iDrive. This will be done by executing a series of commands over SSH. 
 Either I can do this, or you can do this. No pressure. I don't mind doing this for you. I've done both ways. If you're technically inclined and want to poke around, feel free. If not, no worries. I got you!
 
@@ -50,17 +58,6 @@ mkdir aa
 cd /opt/aa/
 cp /mnt/umassXXXXX/nbt-aad ./
 chmod +x /opt/aa/nbt-aad
-# Before launching the Android Auto Daemon, please note your screen may flash for up to 2 seconds.
-/opt/aa/nbt-aad >> /mnt/umassXXXXX/nbt-aad.log
-```
-
-This will start dumping logs onto your flash drive in case it crashes. If so, we'll have a copy! If we need to stop the Android Auto Daemon during the process, we'll do so with these commands:
-
-```bash
-pidin | grep nbt-aad
-nbt-aad 19320
-# NBT-AAD will be some random number, in this case 19320.
-kill 19320
 ```
 
 From there, we're going to test and verify that the Android Auto Daemon does **not** crash, and functions as expected. We'll make sure your phone connects to it okay, and nothing breaks. If something does break or doesn't work out of the gate, we may spend a few minutes troubleshooting it.
