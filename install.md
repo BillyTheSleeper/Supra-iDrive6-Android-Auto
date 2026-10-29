@@ -32,12 +32,15 @@ I will give you a private ZeroTier network to connect to, this will be sent via 
 
 ### Joining Zero Tier Network
 Zero Tier has a very small UI, it's hidden in the bottom corner of your task bar, right click it, and select Join Network:
+
 <img width="376" height="270" alt="image" src="https://github.com/user-attachments/assets/d95154d4-4e4b-42f8-af79-a9a1036babeb" />
 
 ### TurboCode Proxy
 It's super easy, press "Search ZGW", you should see your VIN number pop up as long as your ODB -> ENet cable is successfully connected.
 Once you find it, press **Start**!
+
 <img width="752" height="519" alt="image" src="https://github.com/user-attachments/assets/9e0ffd59-3a7f-48aa-b363-4a199e75bde0" />
+
 Make sure you see: Forwarding 0.0.0.0:6969 → 169.254.199.119:22  
 
 ### What I Need To Do For You
