@@ -6,7 +6,7 @@ Computers are hard. I'm going to try to make this as easy as possible for folks 
 ### Known Limitations
 - AAIDrive cannot be running/installed
 - 3d Buildings in Google Maps may cause lag
-- TBD
+- Apple CarPlay currently required (we use it's WiFi network).
 
 ### Hardware Requirements
 1. [ODB to ENET Cable](https://www.amazon.com/dp/B0CSX3F5GR)
@@ -15,7 +15,7 @@ Computers are hard. I'm going to try to make this as easy as possible for folks 
 4. Laptop or Desktop
 5. High speed internet
 
-### What are we doing?
+## What are we doing?
 Opening up a temporary path to execute commands on the cars head unit. This is being done with software by [TurboCode](https://turbocode.shop/bmw-nbt-evo-ssh-unlocker/). It enables an IT protocol called SSH (Secure Shell) that will let us execute those commands. This protocol is encrypted and secure.
 During this process, we are going to install two applications.
 1. The Android Auto Daemon
@@ -23,11 +23,11 @@ During this process, we are going to install two applications.
 
 The Daemon sits on your headunit and waits for you to click "Android Auto" and start it. It does not run on start, this is by design.
 
-### What I need From You
+## What I need From You
 Two pieces of software need to be downloaded and installed on your computer
 1. [ZeroTier](https://www.zerotier.com/) - This lets me remotely access a private network with just me and your computer.
 2. [BMW TurboCode Proxy](https://turbocode.shop/bmw-remote-enet-tool/) - This lets me specifically access your head unit, via an enet cable
-
+3. A prepared Flash Drive
 I will give you a private ZeroTier network to connect to, this will be sent via Direct Message on whatever platform we're talking on! I'll have to approve your access afterwards. This is how I will connect to your car and enable SSH.
 
 ### Joining Zero Tier Network
@@ -42,6 +42,24 @@ Once you find it, press **Start**!
 <img width="752" height="519" alt="image" src="https://github.com/user-attachments/assets/9e0ffd59-3a7f-48aa-b363-4a199e75bde0" />
 
 Make sure you see: Forwarding 0.0.0.0:6969 → 169.254.199.119:22  
+
+### Prepared Flash Drive
+The flash drive must be formatted in FAT32 or exFAT. You can do this by right clicking on your flash drive, selecting format, and selecting FAT32 or exFAT. Do not select NTFS.
+
+<img width="361" height="488" alt="image" src="https://github.com/user-attachments/assets/d12c189c-12c1-4dae-ae5a-2901bfd109fa" />
+
+Once formatted, head over to the [Releases page](https://github.com/Sq00ky/Supra-iDrive6-Android-Auto/releases/) and download the latest nbt-aad and release.zip
+
+<img width="949" height="367" alt="image" src="https://github.com/user-attachments/assets/e2ffed2a-afd1-428b-8ca6-62a562cefd2f" />
+
+Please **extract** releases.zip into a folder on your flash drive, and copy nbt-aad into the root of your flash drive. If done correctly, it shoud look like this:
+
+<img width="856" height="226" alt="image" src="https://github.com/user-attachments/assets/bf77e4b6-4a1c-465d-b0c9-f3d5207207b4" />
+
+
+<img width="917" height="382" alt="image" src="https://github.com/user-attachments/assets/26f9b559-b2be-4f53-ac07-a870f6630d49" />
+
+If it looks like this, you're ready to go!
 
 ### What I Need To Do For You
 From there, we will change the head unit from Read Only to Read Write temporarily to install the Android Auto Daemon and the Plugin to enable access in iDrive. This will be done by executing a series of commands over SSH. 
