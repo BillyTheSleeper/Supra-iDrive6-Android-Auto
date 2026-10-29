@@ -71,6 +71,7 @@ mkdir -p /opt/hmi/ID5/data/ro/Plugins/NbtAad
 cd /opt/hmi/ID5/data/ro/Plugins/NbtAad/
 cp /mnt/umassXXXXX/release/* ./
 ls -l /opt/hmi/ID5/data/ro/Plugins/NbtAad/
+OnOffDSICommander appreset
 ```
 
 We're going to verify all the files successfully copied over okay, once that's done, you'll need to restart the headunit. Press the power button for 30 seconds, and it will reboot. 
