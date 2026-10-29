@@ -56,6 +56,8 @@ ssh root@169.254.199.99 -o HostKeyAlgorithms=+ssh-rsa -m hmac-sha1
 # The password is ts&SK412
 mount -o remount rw /net/hu-omap/fs/sda0
 on -f /net/hu-omap/ /bin/sh
+ls -l /mnt/
+# find your flashdrive, it should be named something like /mnt/umass01200  , umassXXXX is a place holder name. Please don't blindly copy & paste these.
 cd /fs/sda0/opt/
 mkdir aa
 cd /opt/aa/
