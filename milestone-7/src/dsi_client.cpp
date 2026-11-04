@@ -17,8 +17,10 @@ typedef int  (*FnConnAdd)(void*, void*);
 typedef void (*FnConnStart)(void*);
 typedef void (*FnCliCtor)(void*, const char*, const char*, int, int);
 typedef void (*FnSetNotif)(void*, unsigned);
-typedef void (*FnStreamCtor)(void*, void*, void*, int, unsigned, unsigned, unsigned,
-                             const void*, const void*, int);
+typedef void (*FnStreamCtorEvo)(void*, void*, void*, int, unsigned, unsigned, unsigned,
+                                const void*, const void*, int);
+typedef void (*FnStreamCtorId3)(void*, void*, void*, unsigned, unsigned, unsigned,
+                                const void*, const void*, int);
 typedef void (*FnStreamWrite)(void*, const void*, unsigned);
 typedef int  (*FnStreamSend)(void*, int);
 typedef void (*FnStreamDtor)(void*);
@@ -29,7 +31,9 @@ struct Syms {
     FnConnStart connStart;
     FnCliCtor cliCtor;
     FnSetNotif setNotif;
-    FnStreamCtor streamCtor;
+    FnStreamCtorEvo streamCtorEvo;
+    FnStreamCtorId3 streamCtorId3;
+    bool ctorHasIpcFd;
     FnStreamWrite streamWrite;
     FnStreamSend streamSend;
     FnStreamDtor streamDtor;
@@ -93,6 +97,9 @@ bool DsiClient::open(const char* iface, const char* role, int major, int minor) 
         "/opt/sys/lib/libsys_dsi_colibry.cpp-ne.so.8",
         "/fs/sda0/opt/sys/lib/libsys_dsi_colibry.cpp-ne.so.8",
         "libsys_dsi_colibry.cpp-ne.so.8",
+        "/opt/sys/lib/libsys_dsi_colibry.so.3",
+        "/fs/sda0/opt/sys/lib/libsys_dsi_colibry.so.3",
+        "libsys_dsi_colibry.so.3",
         NULL
     };
     for (int i = 0; names[i] && !lib_; ++i) {
@@ -109,13 +116,17 @@ bool DsiClient::open(const char* iface, const char* role, int major, int minor) 
         g_s.connStart   = (FnConnStart)  need(lib_, "_ZN14CDSIConnection5startEv");
         g_s.cliCtor     = (FnCliCtor)    need(lib_, "_ZN10CDSIClientC1EPKcS1_ii");
         g_s.setNotif    = (FnSetNotif)   need(lib_, "_ZN10CDSIClient15setNotificationEj");
-        g_s.streamCtor  = (FnStreamCtor) need(lib_, "_ZN11CDSIOStreamC1ER11CDSIChannelP13CDSITCPSocketiN3DSI11RequestTypeENS4_7CommandEjRK8SPartyIDS9_i");
+        g_s.streamCtorEvo = (FnStreamCtorEvo) need(lib_, "_ZN11CDSIOStreamC1ER11CDSIChannelP13CDSITCPSocketiN3DSI11RequestTypeENS4_7CommandEjRK8SPartyIDS9_i");
+        g_s.streamCtorId3 = (FnStreamCtorId3) need(lib_, "_ZN11CDSIOStreamC1ER11CDSIChannelR13CDSITCPSocketN3DSI11RequestTypeENS4_7CommandEjRK8SPartyIDS9_i");
+        g_s.ctorHasIpcFd = (g_s.streamCtorEvo != NULL);
         g_s.streamWrite = (FnStreamWrite)need(lib_, "_ZN11CDSIOStream5writeEPKvj");
+        if (!g_s.streamWrite)
+            g_s.streamWrite = (FnStreamWrite)need(lib_, "_ZN14CDSIStreamBase4loadEPKvj");
         g_s.streamSend  = (FnStreamSend) need(lib_, "_ZN11CDSIOStream4sendEi");
         g_s.streamDtor  = (FnStreamDtor) need(lib_, "_ZN11CDSIOStreamD1Ev");
         g_s.vtable      = need(lib_, "_ZTV10CDSIClient");
         if (!g_s.connCtor || !g_s.connAdd || !g_s.connStart || !g_s.cliCtor || !g_s.setNotif ||
-            !g_s.streamCtor || !g_s.streamWrite || !g_s.streamSend || !g_s.streamDtor || !g_s.vtable) {
+            (!g_s.streamCtorEvo && !g_s.streamCtorId3) || !g_s.streamWrite || !g_s.streamSend || !g_s.streamDtor || !g_s.vtable) {
             printf("[DsiClient] required symbols missing, aborting\n");
             memset(&g_s, 0, sizeof(g_s));
             pthread_mutex_unlock(&g_symMutex);
@@ -222,7 +233,10 @@ bool DsiClient::sendRequest(uint32_t requestId, const std::vector<uint8_t>& payl
     void* chan = cli_ + 0x130;
     void* tcp  = cli_ + 0x138;
     int ipcFd  = *reinterpret_cast<int*>(cli_ + 0x140);
-    g_s.streamCtor(stream, chan, tcp, ipcFd, 0x100u, 7u, requestId, cli_ + 0x110, cli_ + 0x118, 0);
+    if (g_s.ctorHasIpcFd)
+        g_s.streamCtorEvo(stream, chan, tcp, ipcFd, 0x100u, 7u, requestId, cli_ + 0x110, cli_ + 0x118, 0);
+    else
+        g_s.streamCtorId3(stream, chan, tcp, 0x100u, 7u, requestId, cli_ + 0x110, cli_ + 0x118, 0);
     if (!payload.empty()) g_s.streamWrite(stream, &payload[0], (unsigned)payload.size());
     int rc = g_s.streamSend(stream, -1);
     g_s.streamDtor(stream);

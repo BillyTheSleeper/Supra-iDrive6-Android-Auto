@@ -4,16 +4,30 @@
 # Target: Cortex-A15 Little Endian (BMW NBT Evo)
 
 QCC ?= qcc
-TARGET_ARCH ?= -Vgcc_ntoarmv7le_cpp
+ARCH ?= armv7le
+
+ifeq ($(ARCH),x86)
+TARGET_ARCH := -Vgcc_ntox86_cpp
+CC_TARGET    := -Vgcc_ntox86
+GPP_TARGET   := -Vgcc_ntox86_gpp
+ARCH_FLAGS   :=
+LIBDIR       := -L./lib-x86
+else
+TARGET_ARCH := -Vgcc_ntoarmv7le_cpp
+CC_TARGET    := -Vgcc_ntoarmv7le
+GPP_TARGET   := -Vgcc_ntoarmv7le_gpp
+ARCH_FLAGS   := -march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp
+LIBDIR       := -L./lib
+endif
 
 CXX = $(QCC) $(TARGET_ARCH)
-CC  = $(QCC) -Vgcc_ntoarmv7le
+CC  = $(QCC) $(CC_TARGET)
 
 INCLUDES = -I./include -I./src
 # Remove -fPIC and -Bdynamic to produce a true QNX executable (ET_EXEC), not a shared lib (ET_DYN)
-CXXFLAGS = -O2 -Wall -D_QNX_SOURCE -Wc,-std=gnu++0x -march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp $(INCLUDES)
+CXXFLAGS = -O2 -Wall -D_QNX_SOURCE -Wc,-std=gnu++0x $(ARCH_FLAGS) $(INCLUDES)
 # Set RPATH so QNX's dynamic linker automatically finds liba2i_client.so in /opt/mm/lib without copying
-LDFLAGS  = -L./lib -la2i_client -lsocket -lssl -lcrypto -lscreen -lusbdi -lang-c++ -lm -Wl,-rpath,/opt/mm/lib:/lib:/usr/lib
+LDFLAGS  = $(LIBDIR) -la2i_client -lsocket -lssl -lcrypto -lscreen -lusbdi -lang-c++ -lm -Wl,-rpath,/opt/mm/lib:/lib:/usr/lib
 
 SRCS = src/main.cpp \
        src/audio/a2i_audio.cpp \
@@ -52,7 +66,7 @@ SRCS = src/main.cpp \
 
 # C sources: the vendored speexdsp resampler (third_party/speexdsp, BSD-3), built through src/audio/speex.c.
 CSRCS = src/audio/speex.c
-CFLAGS = -O2 -Wall -D_QNX_SOURCE -march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp $(INCLUDES)
+CFLAGS = -O2 -Wall -D_QNX_SOURCE $(ARCH_FLAGS) $(INCLUDES)
 
 OBJS = $(SRCS:.cpp=.o) $(CSRCS:.c=.o)
 TARGET = nbt-aad
@@ -72,7 +86,7 @@ $(TARGET): $(OBJS)
 
 test_display: test_display.cpp
 	@echo [CXX] test_display.cpp
-	$(CXX) $(CXXFLAGS) -o test_display test_display.cpp -L./lib -lscreen -lang-c++
+	$(CXX) $(CXXFLAGS) -o test_display test_display.cpp $(LIBDIR) -lscreen -lang-c++
 	@echo [DONE] Built test_display for QNX armv7le
 
 test_controls: test_controls.cpp src/dsi_client.cpp src/dsi_client.hpp src/most_msg.hpp src/ctl_wizard.hpp src/ccs_decoder.hpp
@@ -81,8 +95,8 @@ test_controls: test_controls.cpp src/dsi_client.cpp src/dsi_client.hpp src/most_
 	@echo [DONE] Built test_controls for QNX armv7le
 
 # ---- HmiMain3D plugin (plugin/): GNU libstdc++ (_gpp variant) to match BMW's plugins, PIC shared object ----
-PLUGIN_CXX      = $(QCC) -Vgcc_ntoarmv7le_gpp
-PLUGIN_CXXFLAGS = -O2 -Wall -D_QNX_SOURCE -march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp -fPIC -I./plugin
+PLUGIN_CXX      = $(QCC) $(GPP_TARGET)
+PLUGIN_CXXFLAGS = -O2 -Wall -D_QNX_SOURCE $(ARCH_FLAGS) -fPIC -I./plugin
 PLUGIN_RPATH    = -Wl,-rpath,/lib:/usr/lib:/fs/sda0/repository/istep/lib:/opt/hmi/ID5/lib
 
 # ---- native iDrive PluginApp (rhmiapp/): libNbtAad.so + manifest/XML/DBs -> /opt/hmi/ID5/data/ro/Plugins/NbtAad ----
@@ -110,7 +124,7 @@ plugin/libhmiaad.so: $(PLUGIN_SRCS) plugin/plugin_abi.hpp plugin/hmi_services.hp
 
 plugin/plugin_check: plugin/plugin_check.cpp plugin/plugin_abi.hpp
 	@echo [CXX] $@
-	$(PLUGIN_CXX) -O2 -Wall -D_QNX_SOURCE -march=armv7-a -mfpu=vfpv3 -mfloat-abi=softfp -I./plugin -o $@ plugin/plugin_check.cpp -lang-c++ $(PLUGIN_RPATH)
+	$(PLUGIN_CXX) -O2 -Wall -D_QNX_SOURCE $(ARCH_FLAGS) -I./plugin -o $@ plugin/plugin_check.cpp -lang-c++ $(PLUGIN_RPATH)
 	@echo [DONE] Built $@
 
 # -Wp,-MMD: a .d file per object lists the headers it includes, so changing a header rebuilds every object that
