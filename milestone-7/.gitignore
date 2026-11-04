@@ -11,3 +11,4 @@ plugin/plugin_check
 rhmiapp/libNbtAad.so
 # Host test builds (make check)
 tests/build/
+id3_plugin/libNbtAad.so
